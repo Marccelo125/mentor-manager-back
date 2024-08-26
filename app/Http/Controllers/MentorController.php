@@ -40,7 +40,7 @@ class MentorController extends Controller
             $request->validate([
                 'name' => 'required|string|min:2',
                 'email' => 'required|email|unique:users,email',
-                'cpf' => 'required|string|max:11|min:11',
+                'cpf' => 'required|string|max:11|min:11|unique',
             ], [
                 'name.min' => 'O campo :attribute deve conter no minimo 2 caracteres',
                 ['cpf.max', 'cpf.min'] => 'O campo :attribute deve conter 11 caracteres',
@@ -115,23 +115,56 @@ class MentorController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required|string|min:2',
-                'email' => 'required|email|unique:users,email',
-                'cpf' => 'required|string|max:11|min:11',
+                'name' => 'string|min:2',
+                'email' => 'email',
+                'cpf' => 'string|max:11|min:11',
             ], [
                 'name.min' => 'O campo :attribute deve conter no minimo 2 caracteres',
                 ['cpf.max', 'cpf.min'] => 'O campo :attribute deve conter 11 caracteres',
                 'required' => 'o campo :attribute é obrigatório',
                 'string' => 'o campo :attribute deve ser do tipo string',
                 'email' => 'O campo :attribute precisa ser um email válido',
-                'unique' => 'o campo :attribute deve ser único',
             ]);
 
-            if($request->name) $mentor->name = $request->name;
-            if($request->email) $mentor->email = $request->email;
-            if($request->cpf) $mentor->cpf = $request->cpf;
+            if ($request->has('name')) {
+                $mentor->name = $request->name;
+            }
+            if ($request->has('email')) {
+                $mentor->email = $request->email;
+            }
+            if ($request->has('cpf')) {
+                $mentor->cpf = $request->cpf;
+            }
+
+            $mentor->save();
+
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Mentor atualizado com sucesso',
+                    'data' => $mentor
+                ],
+                HttpFoundationResponse::HTTP_OK
+            );
+
+        } catch (ValidationException $validationException) {
+            Log::error('Erro de validação', ['error' => $validationException->getMessage()]);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => $validationException->getMessage(),
+                ],
+                HttpFoundationResponse::HTTP_UNPROCESSABLE_ENTITY
+            );
         } catch (\Throwable $th) {
-            //throw $th;
+            Log::error('Erro ao atualizar mentor', ['error' => $th->getMessage()]);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Erro interno, tente novamente!',
+                ],
+                HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
     }
 
