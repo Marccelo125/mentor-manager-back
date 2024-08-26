@@ -170,6 +170,28 @@ class MentorController extends Controller
 
     public function destroy(Mentor $mentor)
     {
-        //
+        try {
+            $mentor = Mentor::findOrFail($mentor->id);
+            $mentor->delete();
+
+            return response()->json(
+                [
+                    'success' => true,
+                    'message' => 'Mentor deletado com sucesso',
+                    'data' => $mentor
+                ],
+                HttpFoundationResponse::HTTP_OK
+            );
+        } catch (\Throwable $th) {
+            Log::error('Erro ao deletar mentor', ['error' => $th->getMessage()]);
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Erro interno, tente novamente!',
+                ],
+                HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
     }
 }
