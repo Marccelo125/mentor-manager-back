@@ -39,11 +39,11 @@ class MentorController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|min:2',
-                'email' => 'required|email|unique:users,email',
-                'cpf' => 'required|string|max:11|min:11|unique',
+                'email' => 'required|email|unique:mentors,email',
+                'cpf' => 'required|string|size:11|unique',
             ], [
-                'name.min' => 'O campo :attribute deve conter no minimo 2 caracteres',
-                ['cpf.max', 'cpf.min'] => 'O campo :attribute deve conter 11 caracteres',
+                'name.min' => 'O campo name deve conter no minimo 2 caracteres',
+                'size' => 'O campo cpf deve conter 11 caracteres',
                 'required' => 'o campo :attribute é obrigatório',
                 'string' => 'o campo :attribute deve ser do tipo string',
                 'email' => 'O campo :attribute precisa ser um email válido',
@@ -117,10 +117,10 @@ class MentorController extends Controller
             $request->validate([
                 'name' => 'string|min:2',
                 'email' => 'email',
-                'cpf' => 'string|max:11|min:11',
+                'cpf' => 'string|size:11',
             ], [
                 'name.min' => 'O campo :attribute deve conter no minimo 2 caracteres',
-                ['cpf.max', 'cpf.min'] => 'O campo :attribute deve conter 11 caracteres',
+                'size' => 'O campo :attribute deve conter 11 caracteres',
                 'required' => 'o campo :attribute é obrigatório',
                 'string' => 'o campo :attribute deve ser do tipo string',
                 'email' => 'O campo :attribute precisa ser um email válido',
