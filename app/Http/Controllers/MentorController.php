@@ -6,6 +6,7 @@ use App\Models\Mentor;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class MentorController extends Controller
@@ -20,7 +21,7 @@ class MentorController extends Controller
                     'message' => 'Mentores listados com sucesso',
                     'data' => $mentors
                 ],
-                HttpFoundationResponse::HTTP_FOUND
+                HttpFoundationResponse::HTTP_OK
             );
         } catch (\Throwable $th) {
             Log::error('Erro ao mostrar mentores', ['error' => $th->getMessage()]);
@@ -37,26 +38,20 @@ class MentorController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
+            $attributes = $request->validate([
                 'name' => 'required|string|min:2',
                 'email' => 'required|email|unique:mentors,email',
-                'cpf' => 'required|string|size:11|unique',
+                'cpf' => 'required|string|size:11|unique:mentors,cpf',
             ], [
-                'name.min' => 'O campo name deve conter no minimo 2 caracteres',
-                'size' => 'O campo cpf deve conter 11 caracteres',
-                'required' => 'o campo :attribute é obrigatório',
-                'string' => 'o campo :attribute deve ser do tipo string',
-                'email' => 'O campo :attribute precisa ser um email válido',
-                'unique' => 'o campo :attribute deve ser único',
+                'required' => 'O campo :attribute é obrigatório',
+                'name.min' => 'O campo name deve conter no mínimo 2 caracteres',
+                'size' => 'O campo :attribute deve conter 11 caracteres',
+                'string' => 'O campo :attribute deve ser do tipo string',
+                'email' => 'O campo :attribute deve ser um e-mail válido',
+                'unique' => 'O campo :attribute deve ser único',
             ]);
 
-            $data = $request->only([
-                'name',
-                'email',
-                'cpf',
-            ]);
-
-            $mentor = Mentor::create($data);
+            $mentor = Mentor::create($attributes);
 
             return response()->json(
                 [
@@ -68,6 +63,7 @@ class MentorController extends Controller
             );
         } catch (ValidationException $validationException) {
             Log::error('Erro de validação', ['error' => $validationException->getMessage()]);
+
             return response()->json(
                 [
                     'success' => false,
@@ -77,10 +73,12 @@ class MentorController extends Controller
             );
         } catch (\Throwable $th) {
             Log::error('Erro ao cadastrar mentor', ['error' => $th->getMessage()]);
+
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Erro interno, tente novamente!',
+                    'message' => "Erro interno ao cadastrar mentor. Detalhes: " . $th->getMessage(),
+
                 ],
                 HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR
             );
@@ -115,24 +113,23 @@ class MentorController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'string|min:2',
-                'email' => 'email',
-                'cpf' => 'string|size:11',
+                'name' => 'nullable|string|min:2',
+                'email' => 'nullable|email',
+                'cpf' => 'nullable|string|size:11',
             ], [
                 'name.min' => 'O campo :attribute deve conter no minimo 2 caracteres',
                 'size' => 'O campo :attribute deve conter 11 caracteres',
-                'required' => 'o campo :attribute é obrigatório',
-                'string' => 'o campo :attribute deve ser do tipo string',
+                'string' => 'O campo :attribute deve ser do tipo string',
                 'email' => 'O campo :attribute precisa ser um email válido',
             ]);
 
-            if ($request->has('name')) {
+            if ($request->filled('name')) {
                 $mentor->name = $request->name;
             }
-            if ($request->has('email')) {
+            if ($request->filled('email')) {
                 $mentor->email = $request->email;
             }
-            if ($request->has('cpf')) {
+            if ($request->filled('cpf')) {
                 $mentor->cpf = $request->cpf;
             }
 
