@@ -9,7 +9,7 @@ Route::get('/users', [UserController::class, 'index']);
 Route::post('/register', [UserController::class, 'store']);
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::delete('/logout/{id}', [AuthController::class, 'logout']);
+Route::delete('/logout', [AuthController::class, 'destroy'])->middleware(['auth:sanctum', 'admin']);
 
 Route::apiResource('/mentors', MentorController::class)->middleware(['auth:sanctum', 'admin']);
 
