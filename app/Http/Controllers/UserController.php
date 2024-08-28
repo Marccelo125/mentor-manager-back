@@ -44,12 +44,7 @@ class UserController extends Controller
                 'name' => 'required|string|min:2',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:6',
-            ], [
-                'required' => 'o campo :attribute é obrigatório',
-                'string' => 'o campo :attribute deve ser do tipo string',
-                'email' => 'O campo :attribute precisa ser um email válido',
-                'unique' => 'o campo :attribute deve ser único',
-            ]);
+1            ]);
 
             $data = $request->only([
                 'name',
@@ -65,12 +60,11 @@ class UserController extends Controller
                 [
                     'success' => true,
                     'message' => 'Usuário cadastrado com sucesso',
-                    'data' => $user
+                    'data' => $user,
                 ],
                 HttpFoundationResponse::HTTP_CREATED
             );
         } catch (ValidationException $validationException) {
-            Log::error('Erro de validação', ['error' => $validationException->getMessage()]);
             return response()->json(
                 [
                     'success' => false,

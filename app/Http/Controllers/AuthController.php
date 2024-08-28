@@ -58,25 +58,24 @@ class AuthController extends Controller
         }
     }
 
-    public function logout(string $id)
+
+    public function destroy(Request $request)
     {
         try {
-            $user = User::findOrFail($id);
-            $user->tokens()->delete();
-
+            $request->user()->tokens()->delete();
             return response()->json(
                 [
                     'success' => true,
-                    'msg' => "Usuário deletado com sucesso"
+                    'msg' => "Autorização deletada com sucesso"
                 ],
-                200
+                HttpFoundationResponse::HTTP_OK
             );
         } catch (\Throwable $th) {
             Log::error('Erro ao deslogar', ['error' => $th->getMessage()]);
             return response()->json(
                 [
                     'success' => false,
-                    'msg' => "Erro ao deletar usuário"
+                    'msg' => "Erro ao deletar autorização, tente novamente!",
                 ],
                 HttpFoundationResponse::HTTP_BAD_REQUEST
             );
