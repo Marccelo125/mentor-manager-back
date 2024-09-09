@@ -6,7 +6,6 @@ use App\Models\Mentor;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException as ValidationValidationException;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class MentorController extends Controller
@@ -14,7 +13,9 @@ class MentorController extends Controller
     public function index()
     {
         try {
-            $mentors = Mentor::all();
+            $perPage = request('per_page', 5);
+
+            $mentors = Mentor::paginate($perPage);
             return response()->json(
                 [
                     'success' => true,
